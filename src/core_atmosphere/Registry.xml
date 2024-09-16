@@ -2016,7 +2016,7 @@
 
         <var_struct name="tend" time_levs="1">
 
-
+                
                 <!-- tendencies for prognostic variables -->
                 <var name="tend_u" name_in_code="u" type="real" dimensions="nVertLevels nEdges Time" units="m s^{-2}"
                      description="Tendency of u from dynamics"/>
@@ -2296,7 +2296,7 @@
                      possible_values="Positive integers"/>
 
                 <!-- NAMELIST VARIABLES ADDED FOR PHYSICS CONFIGURATION: -->
-
+                
                 <nml_option name="config_frac_seaice" type="logical" default_value="true" in_defaults="false"
                      units="-"
                      description="logical for configuration of fractional sea-ice"
@@ -2910,11 +2910,11 @@
 		<var name="mixht" type="real" dimensions="nCells Time" units="m"
 		     desciption="Mixing height"
 		     packages="bl_myj_in"/>
-          <var name="edmf_a" type="real" dimensions="nVertLevels nCells Time" units="unitless"
+                <var name="edmf_a" type="real" dimensions="nVertLevels nCells Time" units="unitless"
                      description="EDMF relative updraft area of moist updrafts in the MYNN PBL scheme"
                      packages="bl_mynn_in;bl_mynnedmf_in"/>
 
-          <var name="edmf_w" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1}"
+                <var name="edmf_w" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1}"
                      description="EDMF vertical velocity of  moist updrafts in the MYNN PBL scheme"
                      packages="bl_mynn_in;bl_mynnedmf_in"/>
 
@@ -3101,7 +3101,7 @@
                 <var name="sh3d" type="real" dimensions="nVertLevels nCells Time" units="unitless"
                      description="stability function for heat"
                      packages="bl_mynn_in;bl_mynnedmf_in"/>
-	
+
                 <var name="sm3d" type="real" dimensions="nVertLevels nCells Time" units="unitless"
                      description="stability function for moisture"
                      packages="bl_mynn_in;bl_mynnedmf_in"/>
@@ -3880,6 +3880,7 @@
                      description="monthly-mean climatological ozone defined at fixed pressure levels"/>
         </var_struct>
 
+
         <var_struct name="sfc_input" time_levs="1">
 
                 <!-- ================================================================================================== -->
@@ -4086,7 +4087,7 @@
 #endif
 
         <var_struct name="tend_iau" time_levs="1" packages="iau">
-
+			
                 <!-- analysis increments; read from iau input -->
                 <var name="u_amb"     name_in_code="u" type="real" dimensions="nVertLevels nEdges Time" units="m s^{-1}"
                      description="Horizontal normal velocity increment"/>
