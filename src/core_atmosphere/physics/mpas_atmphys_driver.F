@@ -279,23 +279,23 @@
 
     !call to land-surface scheme:
     if(config_lsm_scheme .eq. 'sf_noah' .or. config_lsm_scheme .eq. 'sf_ruc') then
-       call allocate_lsm(config_lsm_scheme)
+       call allocate_lsm(block%configs)
 !$OMP PARALLEL DO
           do thread=1,nThreads
              call driver_lsm(itimestep,block%configs,mesh,diag_physics,sfc_input, &
                              cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
           end do
 !$OMP END PARALLEL DO
-       call deallocate_lsm(config_lsm_scheme)
+       call deallocate_lsm(block%configs)
 
-       call allocate_seaice(config_lsm_scheme)
+       call allocate_seaice(block%configs)
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call driver_seaice(itimestep,block%configs,mesh,diag_physics,sfc_input, &
                              cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        enddo
 !$OMP END PARALLEL DO
-       call deallocate_seaice(config_lsm_scheme)
+       call deallocate_seaice(block%configs)
 
     elseif(config_lsm_scheme == 'sf_noahmp') then
        do thread=1,nThreads

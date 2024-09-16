@@ -124,10 +124,16 @@
 
 
 !=================================================================================================================
- subroutine allocate_lsm(config_lsm_scheme)
+ subroutine allocate_lsm(configs)
 !=================================================================================================================
- character(len=StrKIND),pointer, intent(in) :: config_lsm_scheme
-!-----------------------------------------------------------------------------------------------------------------
+
+!input arguments:
+ type(mpas_pool_type),intent(in):: configs
+
+!local pointers:
+ character(len=StrKIND),pointer:: lsm_scheme
+
+ call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
 
 !arrays for soil layer properties:
  if(.not.allocated(dzs_p)   ) allocate(dzs_p(1:num_soils)                   )
@@ -198,7 +204,7 @@
  if(.not.allocated(utype_urb_p) ) allocate(utype_urb_p(ims:ime,jms:jme) )
 
 
- if(config_lsm_scheme=='sf_ruc') then
+ if(lsm_scheme=='sf_ruc') then
     if(.not.allocated(rhosnf_p)   )  allocate(rhosnf_p(ims:ime,jms:jme)    )
     if(.not.allocated(precipfr_p) )  allocate(precipfr_p(ims:ime,jms:jme)  )
     if(.not.allocated(qcg_p)      )  allocate(qcg_p(ims:ime,jms:jme)       )
@@ -229,12 +235,18 @@
  end subroutine allocate_lsm
 
 !=================================================================================================================
- subroutine deallocate_lsm(config_lsm_scheme)
+ subroutine deallocate_lsm(configs)
 !=================================================================================================================
 
- character(len=StrKIND),pointer, intent(in) :: config_lsm_scheme
+!input arguments:
+ type(mpas_pool_type),intent(in):: configs
+
+!local pointers:
+ character(len=StrKIND),pointer:: lsm_scheme
 
 !-----------------------------------------------------------------------------------------------------------------
+
+ call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
 
 !arrays for soil layer properties:
  if(allocated(dzs_p)   ) deallocate(dzs_p   )
@@ -305,7 +317,7 @@
  if(allocated(utype_urb_p) ) deallocate(utype_urb_p )
 
 
- if (config_lsm_scheme == "sf_ruc") then
+ if (lsm_scheme == "sf_ruc") then
     if(allocated(rhosnf_p)    ) deallocate(rhosnf_p    )
     if(allocated(precipfr_p)  ) deallocate(precipfr_p  )
     if(allocated(qsg_p)       ) deallocate(qsg_p       )

@@ -45,10 +45,16 @@
 
 
 !=================================================================================================================
- subroutine allocate_seaice (config_lsm_scheme)
+ subroutine allocate_seaice (configs)
 !=================================================================================================================
 
- character(len=StrKIND),pointer, intent(in) :: config_lsm_scheme
+!input arguments:
+ type(mpas_pool_type),intent(in):: configs
+
+!local pointers:
+ character(len=StrKIND),pointer:: lsm_scheme
+
+ call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
 
  if(.not.allocated(acsnom_p)    ) allocate(acsnom_p(ims:ime,jms:jme)    )
  if(.not.allocated(acsnow_p)    ) allocate(acsnow_p(ims:ime,jms:jme)    )
@@ -110,7 +116,7 @@
 
  if(.not.allocated(tslb_p)) allocate(tslb_p(ims:ime,1:num_soils,jms:jme))
 
-  if(config_lsm_scheme=='sf_ruc') then
+  if(lsm_scheme=='sf_ruc') then
     if(.not.allocated(rhosnf_p)   )  allocate(rhosnf_p(ims:ime,jms:jme)    )
     if(.not.allocated(precipfr_p) )  allocate(precipfr_p(ims:ime,jms:jme)  )
     if(.not.allocated(qcg_p)      )  allocate(qcg_p(ims:ime,jms:jme)       )
@@ -139,10 +145,18 @@
  end subroutine allocate_seaice
 
 !=================================================================================================================
- subroutine deallocate_seaice (config_lsm_scheme)
+ subroutine deallocate_seaice (configs)
 !=================================================================================================================
 
- character(len=StrKIND),pointer, intent(in) :: config_lsm_scheme
+!input arguments:
+ type(mpas_pool_type),intent(in):: configs
+
+!local pointers:
+ character(len=StrKIND),pointer:: lsm_scheme
+
+!-----------------------------------------------------------------------------------------------------------------
+
+ call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
 
  if(allocated(acsnom_p)    ) deallocate(acsnom_p    )
  if(allocated(acsnow_p)    ) deallocate(acsnow_p    )
@@ -207,7 +221,7 @@
 
  if(allocated(tslb_p)) deallocate(tslb_p)
 
- if (config_lsm_scheme == "sf_ruc") then
+ if (lsm_scheme == "sf_ruc") then
     if(allocated(rhosnf_p)    ) deallocate(rhosnf_p    )
     if(allocated(precipfr_p)  ) deallocate(precipfr_p  )
     if(allocated(qsg_p)       ) deallocate(qsg_p       )
