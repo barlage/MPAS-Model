@@ -454,7 +454,7 @@ module atm_time_integration
    !                 plus grid meta-data and some diagnostics of state.
    ! Output: domain - upon exit, time level 2 (e.g., time_levs(2)%state%h(:,:)) contains 
    !                  model state advanced forward in time by dt seconds,
-   !                  and some diagnostics in diag
+   !                  and some diagnostics in diag 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 
       implicit none
@@ -943,7 +943,7 @@ module atm_time_integration
 
                call mpas_timer_stop('atm_advance_acoustic_step')
 
- 
+  
 ! rtheta_pp
 ! This is the only communications needed during the acoustic steps because we solve for u on all edges of owned cells
 
@@ -3681,7 +3681,7 @@ module atm_time_integration
       end if
 
       !  for positive-definite or monotonic option, we first update scalars using the tendency from sources other than
-      !  the resolved transport (these should constitute a positive definite update). 
+      !  the resolved transport (these should constitute a positive definite update).  
       !  Note, however, that we enforce positive-definiteness in this update.
       !  The transport will maintain this positive definite solution and optionally, shape preservation (monotonicity).
 
@@ -6170,7 +6170,7 @@ module atm_time_integration
 !   
    subroutine atm_zero_gradient_w_bdy( state, mesh, cellSolveStart, cellSolveEnd )
 
-      ! reconstitute state variables from acoustic-step perturbation variables
+      ! reconstitute state variables from acoustic-step perturbation variables 
       ! after the acoustic steps.  The perturbation variables were originally set in
       ! subroutine atm_set_smlstep_pert_variables prior to their acoustic-steps update.
       ! we are also computing a few other state-derived variables here.
@@ -6260,7 +6260,7 @@ module atm_time_integration
       call mpas_pool_get_array(mesh, 'bdyMaskCell', bdyMaskCell)
       call mpas_pool_get_array(mesh, 'bdyMaskEdge', bdyMaskEdge)
       call mpas_pool_get_array(tend, 'rt_diabatic_tend', rt_diabatic_tend)
-
+      
       do iCell = cellSolveStart, cellSolveEnd
          if(bdyMaskCell(iCell) > nRelaxZone) then
             do k=1, nVertLevels
