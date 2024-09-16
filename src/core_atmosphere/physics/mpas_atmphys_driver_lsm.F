@@ -866,7 +866,7 @@
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
- call physics_message(lsm_scheme)
+
  lsm_select: select case (trim(lsm_scheme))
 
     case ("sf_noah")
