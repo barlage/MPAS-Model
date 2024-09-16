@@ -587,11 +587,11 @@
 #endif
 		</stream>
 
-		<stream name="restart"
-                        type="input;output"
-                        filename_template="restart.$Y-$M-$D_$h.$m.$s.nc"
-                        input_interval="initial_only"
-                        output_interval="1_00:00:00"
+		<stream name="restart" 
+                        type="input;output" 
+                        filename_template="restart.$Y-$M-$D_$h.$m.$s.nc" 
+                        input_interval="initial_only" 
+                        output_interval="1_00:00:00" 
                         immutable="true">
 
 			<stream name="invariant" packages="no_invariant_stream"/>
@@ -881,9 +881,9 @@
 #endif
 		</stream>
 
-		<stream name="output"
-                        type="output"
-                        filename_template="history.$Y-$M-$D_$h.$m.$s.nc"
+		<stream name="output" 
+                        type="output" 
+                        filename_template="history.$Y-$M-$D_$h.$m.$s.nc" 
                         output_interval="6:00:00"
                         runtime_format="separate_file">
 
@@ -1016,9 +1016,9 @@
 #endif
 		</stream>
 
-		<stream name="diagnostics"
-                        type="output"
-                        filename_template="diag.$Y-$M-$D_$h.$m.$s.nc"
+		<stream name="diagnostics" 
+                        type="output" 
+                        filename_template="diag.$Y-$M-$D_$h.$m.$s.nc" 
                         output_interval="3:00:00"
                         runtime_format="separate_file">
 
@@ -1100,7 +1100,7 @@
                         <!-- End isobaric diagnostics defined in diagnostics/Registry_isobaric.xml -->
 
 #ifdef DO_PHYSICS
-                        <var name="olrtoa"/>
+			<var name="olrtoa"/>
                         <var name="swdnb"/>
                         <var name="swupt"/>
 			<var name="rainc"/>
@@ -1179,9 +1179,9 @@
 #endif
 		</stream>
 
-		<stream name="surface"
-                        type="input"
-                        filename_template="x1.40962.sfc_update.nc"
+		<stream name="surface" 
+                        type="input" 
+                        filename_template="x1.40962.sfc_update.nc" 
                         input_interval="none"
                         filename_interval="none"
                         runtime_format="separate_file">
@@ -1192,9 +1192,9 @@
 #endif
 		</stream>
 
-	        <stream name="iau"
-                        type="input"
-                        filename_template="x1.40962.AmB.$Y-$M-$D_$h.$m.$s.nc"
+	        <stream name="iau" 
+                        type="input" 
+                        filename_template="x1.40962.AmB.$Y-$M-$D_$h.$m.$s.nc" 
                         input_interval="initial_only"
                         filename_interval="none"
                         immutable="true"
@@ -1208,7 +1208,7 @@
                         type="input"
                         filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
                         filename_interval="input_interval"
-                        input_interval="3:00:00"
+                        input_interval="3:00:00" 
                         runtime_format="single_file"
                         immutable="true"
                         packages="limited_area">
@@ -2593,7 +2593,7 @@
 
                 <nml_option name="config_oml_hml0" type="real" default_value="30.0" in_defaults="false"
                      units="m"
-                     description="If greater than zero, provides the constant, initial mixed-layer depth; if zero, initial mixed-layer depth will be taken from the `oml_initial` field."
+                     description="If greater than zero, provides the constant, initial mixed-layer depth; if zero, initial mixed-layer depth will be taken from the `oml_initial` field." 
                      possible_values="Non-negative real values"/>
 
                 <nml_option name="config_oml_gamma" type="real" default_value="0.14" in_defaults="false"
