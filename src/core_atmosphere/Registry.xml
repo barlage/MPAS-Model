@@ -515,6 +515,9 @@
 			<var name="snoalb"/>
 			<var name="albedo12m"/>
 			<var name="greenfrac"/>
+			<var name="landusef"/>
+			<var name="soilf"/>
+			<var name="lai12m"/>
 			<var name="var2d"/>
 			<var name="con"/>
 			<var name="oa1"/>
@@ -558,20 +561,6 @@
 			<var name="surface_pressure"/>
 
 #ifdef DO_PHYSICS
-			<var name="isltyp"/>
-			<var name="soilf"/>
-			<var name="ivgtyp"/>
-			<var name="landusef"/>
-			<var name="mminlu"/>
-			<var name="isice_lu"/>
-			<var name="iswater_lu"/>
-			<var name="landmask"/>
-			<var name="shdmin"/>
-			<var name="shdmax"/>
-			<var name="snoalb"/>
-			<var name="albedo12m"/>
-			<var name="greenfrac"/>
-			<var name="lai12m"/>
 			<var name="sfc_albbck"/>
 			<var name="skintemp"/>
 			<var name="snow"/>
@@ -864,20 +853,6 @@
 			<var name="rnwfablten"/>
 			<var name="rthratensw"/>
 			<var name="rthratenlw"/>
-			<var name="isltyp"/>
-			<var name="soilf"/>
-			<var name="ivgtyp"/>
-			<var name="landusef"/>
-			<var name="mminlu"/>
-			<var name="isice_lu"/>
-			<var name="iswater_lu"/>
-			<var name="landmask"/>
-			<var name="shdmin"/>
-			<var name="shdmax"/>
-			<var name="snoalb"/>
-			<var name="albedo12m"/>
-			<var name="greenfrac"/>
-			<var name="lai12m"/>
 			<var name="sfc_albbck"/>
 			<var name="skintemp"/>
 			<var name="snow"/>
@@ -890,7 +865,6 @@
 			<var name="xice"/>
 			<var name="xland"/>
 			<var name="dzs"/>
-			<var name="zs"/>
 			<var name="smcrel"/>
 			<var name="sh2o"/>
 			<var name="smois"/>
@@ -3915,12 +3889,14 @@
                      description="dominant soil category"/>
 
 		<var name="soilf" type="real" dimensions="nscat nCells" units="unitless"
+                     packages="lsm_ruc_in" 
                      description="fraction of each soil category present"/>
 
                 <var name="ivgtyp" type="integer" dimensions="nCells" units="unitless"
                      description="dominant vegetation category"/>
 
 		<var name="landusef" type="real" dimensions="nlcat nCells" units="unitless"
+                     packages="lsm_ruc_in" 
 		     description="fraction of each vegetation category present"/>
 
                 <var name="mminlu" type="text" dimensions="" units="unitless"
@@ -3951,6 +3927,7 @@
                      description="monthly-mean climatological surface albedo"/>
 
 		<var name="lai12m" type="real" dimensions="nMonths nCells" units="unitless"
+                     packages="lsm_ruc_in" 
                      description="monthly-mean climatological leaf area index"/>
 
                 <var name="greenfrac" type="real" dimensions="nMonths nCells" units="unitless"
