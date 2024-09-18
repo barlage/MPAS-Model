@@ -283,7 +283,6 @@
 !local variables and arrays:
  integer:: i,j,n
 
-
 !-----------------------------------------------------------------------------------------------------------------
 !call mpas_log_write('--- enter subroutine seaice_from_MPAS:')
 
@@ -369,7 +368,7 @@
        br_p(i,j)        = br(i)
        chs_p(i,j)       = chs(i)
        swdown_p(i,j)    = gsw(i)/(1._RKIND-sfc_albedo(i))
-       gsw_p(i,j)       = gsw(i)
+
        if (lsm_scheme == 'sf_ruc') then
            cpm_p(i,j)       = cpm(i)
            gsw_p(i,j)       = gsw(i)
@@ -522,16 +521,15 @@
    call mpas_pool_get_array(diag_physics,'snowfallac',snowfallac)
    call mpas_pool_get_array(diag_physics,'soilt1'    ,soilt1    )
    call mpas_pool_get_array(diag_physics,'tsnav'     ,tsnav     )
-   call mpas_pool_get_array(diag_physics,'chs2'      ,chs2      )
    call mpas_pool_get_array(diag_physics,'cqs'       ,cqs       )
  endif
 
  call mpas_pool_get_array(diag_physics,'acsnom'    ,acsnom    )
  call mpas_pool_get_array(diag_physics,'acsnow'    ,acsnow    )
  call mpas_pool_get_array(diag_physics,'chs'       ,chs       )
+ call mpas_pool_get_array(diag_physics,'chs2'      ,chs2      )
  call mpas_pool_get_array(diag_physics,'cpm'       ,cpm       )
  call mpas_pool_get_array(diag_physics,'cqs2'      ,cqs2      )
- call mpas_pool_get_array(diag_physics,'cqs'       ,cqs       )
  call mpas_pool_get_array(diag_physics,'qgh'       ,qgh       )
  call mpas_pool_get_array(diag_physics,'qsfc'      ,qsfc      )
  call mpas_pool_get_array(diag_physics,'grdflx'    ,grdflx    )
