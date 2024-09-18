@@ -430,7 +430,7 @@
        if (lsm_scheme == 'sf_ruc') then
            dew_p(i,j) = dew(i)
            sfcevp_p(i,j) = sfcevp(i)
-           if (globalcells(i)==targetcell_) then
+           if (globalcells(i)==0) then
               print *,'from MPAS '
               print *,'globalcells(i),cqs_p,cqs2_p,chs_p,chs2_p',globalcells(i),cqs_p(i,j),cqs2_p(i,j),chs_p(i,j),chs2_p(i,j)
               print *,'flqc(i),mavail(i),rho_p(i,kts,j)',flqc(i),mavail(i),rho_p(i,kts,j)
@@ -598,7 +598,7 @@
        call mpas_log_write('--- call subroutine sfcdiags_ruclsm:')
        do j = jts,jte
           do i = its,ite
-             if (globalcells(i)==targetcell_) then
+             if (globalcells(i)==0) then
                 print *,' before call to sfcdiags_ruclsm'
                 print *,'globalcells(i),cqs_p,cqs2_p,chs_p,chs2_p',globalcells(i),cqs_p(i,j),cqs2_p(i,j),chs_p(i,j),chs2_p(i,j)
              endif
