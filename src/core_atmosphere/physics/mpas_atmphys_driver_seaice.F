@@ -416,6 +416,7 @@
            snowfallac_p(i,j) = snowfallac(i)
            acrunoff_p(i,j) = acrunoff(i)
        endif
+
        !--- output variables:
        hfx_p(i,j)       = hfx(i)
        lh_p(i,j)        = lh(i)
