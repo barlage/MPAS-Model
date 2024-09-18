@@ -288,13 +288,13 @@
 !$OMP END PARALLEL DO
        call deallocate_lsm(block%configs)
 
-    elseif(config_lsm_scheme == 'sf_noahmp') then
-       do thread=1,nThreads
-          call driver_lsm_noahmp(block%configs,mesh,state,time_lev,diag,diag_physics,   &
-                                 diag_physics_noahmp,output_noahmp,sfc_input,itimestep, &
-                                 cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
-       enddo
-    endif
+       elseif(config_lsm_scheme == 'sf_noahmp') then
+          do thread=1,nThreads
+             call driver_lsm_noahmp(block%configs,mesh,state,time_lev,diag,diag_physics,   &
+                                    diag_physics_noahmp,output_noahmp,sfc_input,itimestep, &
+                                    cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
+          enddo
+       endif
 
        call allocate_seaice(block%configs)
 !$OMP PARALLEL DO
