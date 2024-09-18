@@ -32,6 +32,7 @@
 !urban physics: MPAS does not plan to run the urban physics option.
  integer,parameter:: sf_urban_physics = 0 !activate urban canopy model (=0: no urban canopy)
 
+
 !MPAS driver for parameterization of surface processes over seaice points.
 !Laura D. Fowler (laura@ucar.edu) / 2024-03-13.
 
@@ -196,6 +197,7 @@
  if(allocated(chs_sea)     ) deallocate(chs_sea     )
  if(allocated(chs2_sea)    ) deallocate(chs2_sea    )
  if(allocated(cqs2_sea)    ) deallocate(cqs2_sea    )
+ if(allocated(cpm_sea)     ) deallocate(cpm_sea     )
  if(allocated(hfx_sea)     ) deallocate(hfx_sea     )
  if(allocated(qfx_sea)     ) deallocate(qfx_sea     )
  if(allocated(qgh_sea)     ) deallocate(qgh_sea     )
@@ -214,7 +216,6 @@
     if(allocated(chklowq_p)   ) deallocate(chklowq_p   )
     if(allocated(gsw_p)       ) deallocate(gsw_p       )
     if(allocated(sfc_albbck_p)) deallocate(sfc_albbck_p)
-    if(allocated(cpm_sea)     ) deallocate(cpm_sea     )
     if(allocated(chs_sea)     ) deallocate(chs_sea     )
     if(allocated(chs2_sea)    ) deallocate(chs2_sea    )
     if(allocated(cqs2_sea)    ) deallocate(cqs2_sea    )
@@ -262,25 +263,25 @@
 
 !local pointers:
  integer,pointer:: globalCells(:)
- character(len=StrKIND),pointer:: microp_scheme,    &
-                                  convection_scheme, &
-                                  lsm_scheme
+ character(len=StrKIND),pointer:: convection_scheme, &
+                                  lsm_scheme, &
+                                  microp_scheme
 
- integer,dimension(:),pointer:: isltyp,ivgtyp
+ integer,dimension(:),pointer:: isltyp, ivgtyp
 
- real(kind=RKIND),dimension(:),pointer  :: acsnom,acsnow,cpm,chs,chs2,chklowq,cqs,cqs2,glw,     &
-                                           grdflx,gsw,hfx,lh,noahres,potevp,qfx,qgh,qsfc,       &
-                                           br,sfc_albedo,sfc_emiss,sfcrunoff,snopcx,sr,z0,znt
-  real(kind=RKIND),dimension(:),pointer  :: rhosnf,precipfr,qsg,qvg,dew,soilt1,tsnav,acrunoff,  &
-                                           snowfallac,graupelncv,snowncv,qcg,                   &
-                                           flqc,flhc,sfcevp,mavail
- real(kind=RKIND),dimension(:),pointer  :: snoalb,sfc_albbck,snow,snowc,snowh,tmn,skintemp,xice,xland
- real(kind=RKIND),dimension(:),pointer  :: t2m,th2m,q2
- real(kind=RKIND),dimension(:),pointer  :: raincv,rainncv
- real(kind=RKIND),dimension(:,:),pointer:: tslb,dzs,zs
+ real(kind=RKIND),dimension(:),pointer:: acsnom,acsnow,br,chs,chs2,cpm,cqs2,qgh,qsfc,glw,gsw,grdflx,hfx, &
+                                         qfx,lh,noahres,potevp,sfc_albedo,sfc_emiss,sfcrunoff,snopcx,z0, &
+                                         znt,raincv,rainncv,sr
+ real(kind=RKIND),dimension(:),pointer:: snoalb,snow,snowc,snowh,skintemp,xice
+ real(kind=RKIND),dimension(:,:),pointer:: tslb
+
+ real(kind=RKIND),dimension(:),pointer  :: chklowq,cqs,rhosnf,precipfr,qsg,qvg,dew,soilt1,tsnav,acrunoff,  &
+                                           snowfallac,graupelncv,snowncv,qcg,flqc,flhc,sfcevp,mavail,      &
+                                           sfc_albbck,tmn,xland,t2m,th2m,q2
+ real(kind=RKIND),dimension(:,:),pointer:: dzs,zs
 
 !local variables and arrays:
- integer:: i,j,n,nconfig_frac_seaice
+ integer:: i,j,n
 
 
 !-----------------------------------------------------------------------------------------------------------------
@@ -290,34 +291,30 @@
  call mpas_pool_get_config(configs,'config_microp_scheme'    ,microp_scheme    )
  call mpas_pool_get_config(configs,'config_lsm_scheme'       ,lsm_scheme       )
 
- call mpas_pool_get_array(mesh,'indexToCellID',globalCells)
+ call mpas_pool_get_array(diag_physics,'acsnom'    ,acsnom    )
+ call mpas_pool_get_array(diag_physics,'acsnow'    ,acsnow    )
+ call mpas_pool_get_array(diag_physics,'br'        ,br        )
+ call mpas_pool_get_array(diag_physics,'chs'       ,chs       )
+ call mpas_pool_get_array(diag_physics,'chs2'      ,chs2      )
+ call mpas_pool_get_array(diag_physics,'cpm'       ,cpm       )
+ call mpas_pool_get_array(diag_physics,'cqs2'      ,cqs2      )
+ call mpas_pool_get_array(diag_physics,'qgh'       ,qgh       )
+ call mpas_pool_get_array(diag_physics,'qsfc'      ,qsfc      )
+ call mpas_pool_get_array(diag_physics,'glw'       ,glw       )
+ call mpas_pool_get_array(diag_physics,'gsw'       ,gsw       )
+ call mpas_pool_get_array(diag_physics,'grdflx'    ,grdflx    )
+ call mpas_pool_get_array(diag_physics,'hfx'       ,hfx       )
+ call mpas_pool_get_array(diag_physics,'qfx'       ,qfx       )
+ call mpas_pool_get_array(diag_physics,'lh'        ,lh        )
+ call mpas_pool_get_array(diag_physics,'noahres'   ,noahres   )
+ call mpas_pool_get_array(diag_physics,'potevp'    ,potevp    )
+ call mpas_pool_get_array(diag_physics,'sfc_albedo',sfc_albedo)
+ call mpas_pool_get_array(diag_physics,'sfc_emiss' ,sfc_emiss )
+ call mpas_pool_get_array(diag_physics,'sfcrunoff' ,sfcrunoff )
+ call mpas_pool_get_array(diag_physics,'snopcx'    ,snopcx    )
+ call mpas_pool_get_array(diag_physics,'z0'        ,z0        )
+ call mpas_pool_get_array(diag_physics,'znt'       ,znt       )
 
- call mpas_pool_get_array(diag_physics,'acsnom'           ,acsnom           )
- call mpas_pool_get_array(diag_physics,'acsnow'           ,acsnow           )
- call mpas_pool_get_array(diag_physics,'br'               ,br               )
- call mpas_pool_get_array(diag_physics,'chs'              ,chs              )
- call mpas_pool_get_array(diag_physics,'chs2'             ,chs2             )
- call mpas_pool_get_array(diag_physics,'cpm'              ,cpm              )
- call mpas_pool_get_array(diag_physics,'chklowq'          ,chklowq          )
- call mpas_pool_get_array(diag_physics,'cqs2'             ,cqs2             )
- call mpas_pool_get_array(diag_physics,'cqs'              ,cqs              )
- call mpas_pool_get_array(diag_physics,'qgh'              ,qgh              )
- call mpas_pool_get_array(diag_physics,'qsfc'             ,qsfc             )
- call mpas_pool_get_array(diag_physics,'glw'              ,glw              )
- call mpas_pool_get_array(diag_physics,'grdflx'           ,grdflx           )
- call mpas_pool_get_array(diag_physics,'gsw'              ,gsw              )
- call mpas_pool_get_array(diag_physics,'hfx'              ,hfx              )
- call mpas_pool_get_array(diag_physics,'qfx'              ,qfx              )
- call mpas_pool_get_array(diag_physics,'lh'               ,lh               )
- call mpas_pool_get_array(diag_physics,'noahres'          ,noahres          )
- call mpas_pool_get_array(diag_physics,'potevp'           ,potevp           )
- call mpas_pool_get_array(diag_physics,'sfc_albedo'       ,sfc_albedo       )
- call mpas_pool_get_array(diag_physics,'sfc_emiss'        ,sfc_emiss        )
- call mpas_pool_get_array(diag_physics,'sfcrunoff'        ,sfcrunoff        )
- call mpas_pool_get_array(diag_physics,'snopcx'           ,snopcx           )
- call mpas_pool_get_array(diag_physics,'z0'               ,z0               )
- call mpas_pool_get_array(diag_physics,'znt'              ,znt              )
- 
  call mpas_pool_get_array(sfc_input,'snoalb'  ,snoalb  )
  call mpas_pool_get_array(sfc_input,'snow'    ,snow    )
  call mpas_pool_get_array(sfc_input,'snowc'   ,snowc   )
@@ -327,6 +324,9 @@
  call mpas_pool_get_array(sfc_input,'xice'    ,xice    )
 
  if (lsm_scheme .eq. "sf_ruc") then
+   call mpas_pool_get_array(mesh         ,'indexToCellID' ,globalCells      )
+   call mpas_pool_get_array(diag_physics,'chklowq'        ,chklowq          )
+   call mpas_pool_get_array(diag_physics,'cqs'            ,cqs              )
    call mpas_pool_get_array(diag_physics,'rhosnf'         ,rhosnf           )
    call mpas_pool_get_array(diag_physics,'precipfr'       ,precipfr         )
    call mpas_pool_get_array(diag_physics,'qsg'            ,qsg              )
@@ -345,14 +345,13 @@
    call mpas_pool_get_array(diag_physics,'sfcevp'         ,sfcevp           )
    call mpas_pool_get_array(diag_physics,'mavail'         ,mavail           )
 
-   call mpas_pool_get_array(sfc_input,'zs'        ,zs        )
+   call mpas_pool_get_array(sfc_input   ,'zs'             ,zs               )
+   call mpas_pool_get_array(sfc_input   ,'isltyp'         ,isltyp           )
+   call mpas_pool_get_array(sfc_input   ,'ivgtyp'         ,ivgtyp           )
+   call mpas_pool_get_array(sfc_input   ,'sfc_albbck'     ,sfc_albbck       )
+   call mpas_pool_get_array(sfc_input   ,'tmn'            ,tmn              )
+   call mpas_pool_get_array(sfc_input   ,'xland'          ,xland            )
  endif
-
-   call mpas_pool_get_array(sfc_input,'isltyp'    ,isltyp    )
-   call mpas_pool_get_array(sfc_input,'ivgtyp'    ,ivgtyp    )
-   call mpas_pool_get_array(sfc_input,'sfc_albbck',sfc_albbck)
-   call mpas_pool_get_array(sfc_input,'tmn'       ,tmn       )
-   call mpas_pool_get_array(sfc_input,'xland'     ,xland     )
 
  if (lsm_scheme == 'sf_ruc') then
     do n = 1,num_soils
@@ -368,11 +367,12 @@
        qgh_p(i,j)       = qgh(i)
        snoalb_p(i,j)    = snoalb(i)
        br_p(i,j)        = br(i)
-       cpm_p(i,j)       = cpm(i)
        chs_p(i,j)       = chs(i)
        swdown_p(i,j)    = gsw(i)/(1._RKIND-sfc_albedo(i))
        gsw_p(i,j)       = gsw(i)
        if (lsm_scheme == 'sf_ruc') then
+           cpm_p(i,j)       = cpm(i)
+           gsw_p(i,j)       = gsw(i)
            chklowq_p(i,j)    = chklowq(i)
            isltyp_p(i,j)     = isltyp(i)
            ivgtyp_p(i,j)     = ivgtyp(i)
@@ -390,8 +390,6 @@
        !--- inout variables:
        do n = 1,num_soils
           tslb_p(i,n,j) = tslb(n,i)
-          !pattern_spp_lsm(i,n,j) = 0._RKIND
-          !field_sf(i,n,j) = 0._RKIND
        enddo
        z0_p(i,j)        = z0(i)
        snow_p(i,j)      = snow(i)
@@ -399,7 +397,6 @@
        snowh_p(i,j)     = snowh(i)
        tsk_p(i,j)       = skintemp(i)
        cqs2_p(i,j)      = cqs2(i)
-       cqs_p(i,j)       = cqs(i)
        acsnom_p(i,j)    = acsnom(i)
        acsnow_p(i,j)    = acsnow(i)
        sfcrunoff_p(i,j) = sfcrunoff(i)
@@ -410,6 +407,7 @@
        potevp_p(i,j)    = potevp(i)
        snopcx_p(i,j)    = snopcx(i)
        if (lsm_scheme == 'sf_ruc') then
+           cqs_p(i,j)       = cqs(i)
            rhosnf_p(i,j) = rhosnf(i)
            qcg_p(i,j) = qcg(i)
            qsg_p(i,j) = qsg(i)
@@ -494,18 +492,16 @@
  integer,intent(in):: its,ite
 
 !local pointers:
- character(len=StrKIND),pointer:: microp_scheme, &
-                                  lsm_scheme
+ character(len=StrKIND),pointer:: config_microp_scheme
+ character(len=StrKIND),pointer:: lsm_scheme
 
- real(kind=RKIND),dimension(:),pointer:: acsnom,acsnow,cpm,chs,chs2,cqs,cqs2,qgh,qsfc, &
-                                         grdflx,hfx, qfx,lh,noahres,snopcx,z0,znt,     &
-                                         potevp,sfc_albedo,sfc_emiss,sfcrunoff
+ real(kind=RKIND),dimension(:),pointer:: acsnom,acsnow,chs,chs2,cpm,cqs2,qgh,qsfc,grdflx,hfx, qfx,lh,noahres, &
+                                         potevp,sfc_albedo,sfc_emiss,sfcrunoff,snopcx,z0,znt
  real(kind=RKIND),dimension(:),pointer:: snow,snowc,snowh,skintemp,xice
  real(kind=RKIND),dimension(:),pointer:: t2m,th2m,q2
  real(kind=RKIND),dimension(:,:),pointer:: tslb
 
-! RUC lsm variables
- real(kind=RKIND),dimension(:),pointer  :: dew,qcg,qsg,qvg,snowfallac,soilt1,tsnav
+ real(kind=RKIND),dimension(:),pointer  :: cqs,dew,qcg,qsg,qvg,snowfallac,soilt1,tsnav
 
  integer,pointer:: globalCells(:)
 
@@ -516,9 +512,9 @@
 !call mpas_log_write('--- enter subroutine seaice_to_MPAS:')
 
  call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
- call mpas_pool_get_array(mesh,'indexToCellID',globalCells)
 
  if (lsm_scheme .eq. "sf_ruc") then
+   call mpas_pool_get_array(mesh,'indexToCellID',globalCells)
    call mpas_pool_get_array(diag_physics,'dew'       ,dew       )
    call mpas_pool_get_array(diag_physics,'qcg'       ,qcg       )
    call mpas_pool_get_array(diag_physics,'qsg'       ,qsg       )
@@ -526,13 +522,14 @@
    call mpas_pool_get_array(diag_physics,'snowfallac',snowfallac)
    call mpas_pool_get_array(diag_physics,'soilt1'    ,soilt1    )
    call mpas_pool_get_array(diag_physics,'tsnav'     ,tsnav     )
+   call mpas_pool_get_array(diag_physics,'chs2'      ,chs2      )
+   call mpas_pool_get_array(diag_physics,'cqs'       ,cqs       )
  endif
 
  call mpas_pool_get_array(diag_physics,'acsnom'    ,acsnom    )
  call mpas_pool_get_array(diag_physics,'acsnow'    ,acsnow    )
  call mpas_pool_get_array(diag_physics,'chs'       ,chs       )
  call mpas_pool_get_array(diag_physics,'cpm'       ,cpm       )
- call mpas_pool_get_array(diag_physics,'chs2'      ,chs2      )
  call mpas_pool_get_array(diag_physics,'cqs2'      ,cqs2      )
  call mpas_pool_get_array(diag_physics,'cqs'       ,cqs       )
  call mpas_pool_get_array(diag_physics,'qgh'       ,qgh       )
@@ -564,11 +561,16 @@
  do j = jts,jte
     do i = its,ite
        if(xice_p(i,j).ge.xice_threshold .and. xice_p(i,j).le.1._RKIND) then
+         if (lsm_scheme .eq. "sf_ruc") then
           cpm_p(i,j)  = xice_p(i,j)*cpm_p(i,j)  + (1._RKIND-xice_p(i,j))*cpm_sea(i,j)
+          cqs_p(i,j)  = xice_p(i,j)*cqs_p(i,j)  + (1._RKIND-xice_p(i,j))*cqs_sea(i,j)
+         else
+          cpm(i) = xice_p(i,j)*cpm(i) + (1._RKIND-xice_p(i,j))*cpm_sea(i,j)
+         endif
+
           chs_p(i,j)  = xice_p(i,j)*chs_p(i,j)  + (1._RKIND-xice_p(i,j))*chs_sea(i,j)
           chs2_p(i,j) = xice_p(i,j)*chs2_p(i,j) + (1._RKIND-xice_p(i,j))*chs2_sea(i,j)
           cqs2_p(i,j) = xice_p(i,j)*cqs2_p(i,j) + (1._RKIND-xice_p(i,j))*cqs2_sea(i,j)
-          cqs_p(i,j)  = xice_p(i,j)*cqs_p(i,j)  + (1._RKIND-xice_p(i,j))*cqs_sea(i,j)
           hfx_p(i,j)  = xice_p(i,j)*hfx_p(i,j)  + (1._RKIND-xice_p(i,j))*hfx_sea(i,j)
           lh_p(i,j)   = xice_p(i,j)*lh_p(i,j)   + (1._RKIND-xice_p(i,j))*lh_sea(i,j)
           qfx_p(i,j)  = xice_p(i,j)*qfx_p(i,j)  + (1._RKIND-xice_p(i,j))*qfx_sea(i,j)
@@ -581,7 +583,6 @@
     enddo
  enddo
 
- !call to 2-m diagnostics
  lsm_select: select case (trim(lsm_scheme))
 
     case("sf_noah")
@@ -619,7 +620,7 @@
 
  end select lsm_select
 
-!--- update all variables for sea-ice points:
+!--- update all variables:
  do j = jts,jte
     do i = its,ite
        !--- inout variables:
@@ -644,11 +645,9 @@
        !--- output optional variables:
        noahres(i)   = noahres_p(i,j)
 
-       cpm(i)  = cpm_p(i,j)
        chs(i)  = chs_p(i,j)
        chs2(i) = chs2_p(i,j)
        cqs2(i) = cqs2_p(i,j)
-       cqs(i)  = cqs_p(i,j)
        qsfc(i) = qsfc_p(i,j)
        qgh(i)  = qgh_p(i,j)
        hfx(i)  = hfx_p(i,j)
@@ -658,6 +657,8 @@
        sfc_emiss(i)  = sfc_emiss_p(i,j)
 
        if(lsm_scheme .eq. "sf_ruc") then
+          cpm(i)  = cpm_p(i,j)
+          cqs(i)  = cqs_p(i,j)
           qcg(i) = qcg_p(i,j)
           qsg(i) = qsg_p(i,j)
           qvg(i) = qvg_p(i,j)
@@ -709,12 +710,6 @@
 !call mpas_log_write('--- enter subroutine driver_seaice: xice_threshold = $r',realArgs=(/xice_threshold/))
 
  call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
- call mpas_pool_get_array(sfc_input,'mminlu',mminlu)
- call mpas_pool_get_array(sfc_input,'isice' ,isice )
- call mpas_pool_get_array(sfc_input,'iswater',iswater)
- call mpas_pool_get_array(diag_physics,'spp_lsm_loc', spp_lsm_loc)
- call mpas_pool_get_array(mesh,'indexToCellID',globalCells)
-
 
 !copy MPAS arrays to local arrays:
  call seaice_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite)
@@ -754,6 +749,12 @@
              its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte    &
                  )
     case("sf_ruc")
+
+       call mpas_pool_get_array(sfc_input,'mminlu',mminlu)
+       call mpas_pool_get_array(sfc_input,'isice' ,isice )
+       call mpas_pool_get_array(sfc_input,'iswater',iswater)
+       call mpas_pool_get_array(diag_physics,'spp_lsm_loc', spp_lsm_loc)
+       call mpas_pool_get_array(mesh,'indexToCellID',globalCells)
 
        call mpas_log_write('--- call subroutine ruc_ice:')
        call ruc_ice( spp_lsm       = spp_lsm_loc   , iswater      = iswater     , chklowq   = chklowq_p,   &
