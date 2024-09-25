@@ -22,7 +22,7 @@
  use module_sf_noah_seaice_drv
  use module_ruc_land
  use module_sf_sfcdiags
-
+ 
  implicit none
  private
  public:: init_lsm,       &
@@ -471,8 +471,9 @@
    call mpas_pool_get_array(sfc_input,'soilf'     ,soilf     )
    call mpas_pool_get_array(sfc_input,'zs'        ,zs        )
  endif
+
 !In Registry.xml, dzs is a function of nCells. In the Noah lsm scheme, dzs is independent
-!of cell locations
+!of cell locations:
  do n = 1,num_soils
     dzs_p(n) = dzs(n,its)
     if(config_lsm_scheme .eq. "sf_ruc") then
@@ -652,7 +653,6 @@
  integer,intent(in):: its,ite
 
 !local pointers:
-
  character(len=StrKIND),pointer:: config_microp_scheme, &
                                   config_lsm_scheme
 
@@ -878,8 +878,10 @@
 
     case ("sf_noah")
        call noah_init_forMPAS(dminfo,mesh,configs,diag_physics,sfc_input)
+    
     case ("sf_ruc") 
        call ruc_init_forMPAS(dminfo,mesh,configs,diag_physics,sfc_input)
+
     case default
  
  end select lsm_select
@@ -925,6 +927,7 @@
  call mpas_pool_get_array(diag_physics,'mosaic_lu', mosaic_lu)
  call mpas_pool_get_array(diag_physics,'mosaic_soil', mosaic_soil)
  call mpas_pool_get_array(mesh,'indexToCellID',globalCells)
+
 !copy MPAS arrays to local arrays:
  call lsm_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite)
 !write(0,*) '--- end lsm_from_MPAS'
