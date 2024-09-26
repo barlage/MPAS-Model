@@ -305,26 +305,28 @@
 
  call mpas_pool_get_config(configs, 'config_nsoillevels', config_nsoillevels)
 
- !select case (config_nsoillevels)
- !case( 'noah') 
- !  if(config_nsoillevels .ne. 4) &
- !     call physics_error_fatal('NOAH lsm uses 4 soil layers. Correct config_nsoillevels.')
- !case('ruc')
- !  if(config_nsoillevels .ne. 9) &
- !     call physics_error_fatal('RUC lsm uses only 9 soil layers currently. Correct config_nsoillevels.')
- !end select
+ select case (config_nsoillevels)
+ case('noah') 
+   if(config_nsoillevels .ne. 4) &
+      call physics_error_fatal('NOAH lsm uses 4 soil layers. Correct config_nsoillevels.')
+ case('ruc')
+   if(config_nsoillevels .ne. 9) &
+      call physics_error_fatal('RUC lsm uses only 9 soil layers currently. Correct config_nsoillevels.')
+ end select
 
  selectcase (config_nsoillevels)
  case( 4 )
-   do iCell = 1, nCellsSolve
+  do iCell = 1, nCellsSolve
     iSoil = 1
     zs_fg(iSoil,iCell) = 0.5_RKIND * dzs_fg(iSoil,iCell)
     do iSoil = 2, nFGSoilLevels
        zs_fg(iSoil,iCell) = zs_fg(iSoil-1,iCell)        &
                           + 0.5_RKIND * dzs_fg(iSoil-1,iCell) &
                           + 0.5_RKIND * dzs_fg(iSoil,iCell)
-   enddo
+    enddo
+  enddo
 
+  do iCell = 1, nCellsSolve
     dzs(1,iCell) = 0.10_RKIND
     dzs(2,iCell) = 0.30_RKIND
     dzs(3,iCell) = 0.60_RKIND
@@ -337,7 +339,8 @@
                        + 0.5_RKIND * dzs(iSoil-1,iCell) &
                        + 0.5_RKIND * dzs(iSoil,iCell)
     enddo
-   enddo
+
+  enddo
 
  case(9)
    if(.not.allocated(zs2)) allocate(zs2(nSoilLevels))
@@ -391,12 +394,13 @@
  
  real(kind=RKIND),dimension(:,:),allocatable:: zhave,sm_input,st_input
 
- real(kind=RKIND),dimension(:),pointer  :: skintemp,tmn,ter,soilz
+ real(kind=RKIND),dimension(:),pointer  :: skintemp,tmn
+ real(kind=RKIND),dimension(:),pointer  :: ter,soilz
  real(kind=RKIND),dimension(:,:),pointer:: dzs,zs,tslb,smois,sh2o,smcrel
  real(kind=RKIND),dimension(:,:),pointer:: sm_fg,st_fg,zs_fg
 
  integer, pointer :: config_nsoillevels
- 
+
  character(len=StrKIND) :: errstring
 
 !-----------------------------------------------------------------------------------------------------------------
@@ -421,6 +425,7 @@
  call mpas_pool_get_array(fg, 'tmn', tmn)
  call mpas_pool_get_array(mesh, 'ter', ter)
  call mpas_pool_get_array(fg, 'soilz', soilz)
+
  call mpas_pool_get_config(configs, 'config_nsoillevels', config_nsoillevels)
 
  call mpas_log_write('nSoilLevels   = $i',intArgs=(/nSoilLevels/))
@@ -433,9 +438,7 @@
  num_st = 0
  do iCell = 1, nCellsSolve
     do ifgSoil = 1, nFGSoilLevels
-       if(st_fg(ifgSoil,iCell) .le. 0._RKIND) then
-           num_st = num_st + 1
-        endif
+       if(st_fg(ifgSoil,iCell) .le. 0._RKIND) num_st = num_st + 1
        if(sm_fg(ifgSoil,iCell) .lt. 0._RKIND) num_sm = num_sm + 1
     enddo
  enddo
@@ -447,13 +450,13 @@
 
  select case(config_nsoillevels) 
  case ( 4 )
-  ! if(config_nsoillevels .ne. 4) &
-  !    call physics_error_fatal('NOAH lsm uses 4 soil layers. Correct config_nsoillevels.')
+   if(config_nsoillevels .ne. 4) &
+      call physics_error_fatal('NOAH lsm uses 4 soil layers. Correct config_nsoillevels.')
    call init_soil_properties_noah(mesh, fg, dminfo, dims, configs)
 
  case ( 9 )
-   !if(config_nsoillevels .ne. 9) &
-   !   call physics_error_fatal('RUC lsm uses 9 soil layers. Correct config_nsoillevels.')
+   if(config_nsoillevels .ne. 9) &
+      call physics_error_fatal('RUC lsm uses 9 soil layers. Correct config_nsoillevels.')
    call init_soil_properties_ruc(mesh, fg, dminfo, dims, configs)
 
  end select
