@@ -514,7 +514,6 @@ end subroutine init_soil_layers_properties
  if(.not.allocated(st_input)) allocate(st_input(nFGSoilLevels+2,nCellsSolve))
  if(.not.allocated(sm_input)) allocate(sm_input(nFGSoilLevels+2,nCellsSolve))
 
-!... 
  do iCell = 1, nCellsSolve
 
     ifgSoil = 1
@@ -523,14 +522,14 @@ end subroutine init_soil_layers_properties
     sm_input(ifgSoil,iCell) = sm_fg(ifgSoil+1,iCell)
 
     do ifgSoil = 1, nFGSoilLevels
-       zhave(ifgSoil+1,iCell) = zs_fg(ifgSoil,iCell) / 100._RKIND ! convert to meters
-       st_input(ifgSoil+1,iCell) = st_fg(ifgSoil,iCell)  !fill in stemp array
-       sm_input(ifgSoil+1,iCell) = sm_fg(ifgSoil,iCell)  !fill in smois array
+       zhave(ifgSoil+1,iCell) = zs_fg(ifgSoil,iCell) / 100._RKIND
+       st_input(ifgSoil+1,iCell) = st_fg(ifgSoil,iCell)
+       sm_input(ifgSoil+1,iCell) = sm_fg(ifgSoil,iCell)
     enddo
 
-    zhave(nFGSoilLevels+2,iCell) = 300._RKIND/100._RKIND ! Set depth of bottom of last layer to 3m
-    st_input(nFGSoilLevels+2,iCell) = tmn(iCell)         ! Set T at bottom interface to deep layer temp
-    sm_input(nFGSoilLevels+2,iCell) = sm_input(nFGSoilLevels,iCell) ! Set smois at bottom interface to value of lowest layer
+    zhave(nFGSoilLevels+2,iCell) = 300._RKIND/100._RKIND
+    st_input(nFGSoilLevels+2,iCell) = tmn(iCell)
+    sm_input(nFGSoilLevels+2,iCell) = sm_input(nFGSoilLevels,iCell)
 
     if(iCell .eq. 1) then
        do ifgSoil = 1,nFGSoilLevels+2
