@@ -149,12 +149,11 @@
  end subroutine deallocate_seaice
 
 !=================================================================================================================
- subroutine seaice_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite)
+ subroutine seaice_from_MPAS(configs,diag_physics,sfc_input,its,ite)
 !=================================================================================================================
 
 !input and inout arguments:
  type(mpas_pool_type),intent(in):: configs
- type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(inout):: diag_physics
  type(mpas_pool_type),intent(inout):: sfc_input
  integer,intent(in):: its,ite
@@ -172,7 +171,6 @@
 !local variables and arrays:
  integer:: i,j,n
 
-integer, dimension(:), pointer :: indexToCellID
 !-----------------------------------------------------------------------------------------------------------------
 !call mpas_log_write('--- enter subroutine seaice_from_MPAS:')
 
@@ -211,7 +209,7 @@ integer, dimension(:), pointer :: indexToCellID
  call mpas_pool_get_array(sfc_input,'tslb'    ,tslb    )
  call mpas_pool_get_array(sfc_input,'xice'    ,xice    )
 
-call mpas_pool_get_array(mesh, 'indexToCellID', indexToCellID)
+write(*,'(a15,f15.9)') 'swdown_p',swdown_p(1,1)
  do j = jts,jte
     do i = its,ite
        !--- in variables:
@@ -221,8 +219,8 @@ call mpas_pool_get_array(mesh, 'indexToCellID', indexToCellID)
        snoalb_p(i,j)    = snoalb(i)
        br_p(i,j)        = br(i)
        chs_p(i,j)       = chs(i)
-  if(indexToCellID(i)==857) write(*,*) "============= in seaice from mpas =============="
        swdown_p(i,j)    = gsw(i)/(1._RKIND-sfc_albedo(i))
+write(*,'(a15,f15.9)') 'swdown_p',swdown_p(i,1)
 
        !--- inout variables:
        do n = 1,num_soils
@@ -433,11 +431,10 @@ call mpas_pool_get_array(mesh, 'indexToCellID', indexToCellID)
  end subroutine seaice_to_MPAS
 
 !=================================================================================================================
- subroutine driver_seaice(configs,mesh,diag_physics,sfc_input,its,ite)
+ subroutine driver_seaice(configs,diag_physics,sfc_input,its,ite)
 !=================================================================================================================
 
 !input arguments:
- type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(in):: configs
  integer,intent(in):: its,ite
 
@@ -453,7 +450,7 @@ call mpas_pool_get_array(mesh, 'indexToCellID', indexToCellID)
 !call mpas_log_write('--- enter subroutine driver_seaice: xice_threshold = $r',realArgs=(/xice_threshold/))
 
 !copy MPAS arrays to local arrays:
- call seaice_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite)
+ call seaice_from_MPAS(configs,diag_physics,sfc_input,its,ite)
 
  call seaice_noah( &
              dz8w      = dz_p        , p8w3d   = pres2_hyd_p  , t3d      = t_p      , &
