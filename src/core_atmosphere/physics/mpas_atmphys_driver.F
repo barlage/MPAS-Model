@@ -299,7 +299,7 @@
        call allocate_seaice
 !$OMP PARALLEL DO
        do thread=1,nThreads
-          call driver_seaice(block%configs,diag_physics,sfc_input, &
+          call driver_seaice(block%configs,mesh,diag_physics,sfc_input, &
                              cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        enddo
 !$OMP END PARALLEL DO
