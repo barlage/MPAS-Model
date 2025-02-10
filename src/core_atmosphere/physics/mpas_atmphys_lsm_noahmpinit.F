@@ -86,6 +86,16 @@
 !enddo
 !call mpas_log_write('--- end subroutine NoahmpReadTable:')
 
+write(*,*) 'nroot_table:', mpas_noahmp%nroot_table
+if(mpas_noahmp%nsoil == 4) then
+  call mpas_log_write('--- nsoil 4 = $i',intArgs=(/mpas_noahmp%nsoil/))
+elseif(mpas_noahmp%nsoil == 9) then
+  call mpas_log_write('--- nsoil 9 = $i',intArgs=(/mpas_noahmp%nsoil/))
+  mpas_noahmp%nroot_table = (/9,9,9,9,9,6,6,6,6,6,4,6,1,6,1,1,1,6,6,4/)
+else
+  call mpas_log_write('--- nsoil ? = $i',intArgs=(/mpas_noahmp%nsoil/))
+end if  
+write(*,*) 'nroot_table:', mpas_noahmp%nroot_table
 
 !--- initialize noahmp:
  call noahmp_init(configs,mesh,diag_physics,diag_physics_noahmp,output_noahmp,sfc_input)
@@ -320,9 +330,16 @@
     mpas_noahmp%isltyp(i) = isltyp(i)
     mpas_noahmp%ivgtyp(i) = ivgtyp(i)
  enddo
+write(*,*) 'dzs:', mpas_noahmp%dzs
  do ns = 1, nsoil
     mpas_noahmp%dzs(ns) = dzs(ns,its)
  enddo
+write(*,*) 'dzs:', mpas_noahmp%dzs
+if(mpas_noahmp%nsoil == 9) then
+  call mpas_log_write('--- nsoil 9 = $i',intArgs=(/mpas_noahmp%nsoil/))
+  mpas_noahmp%dzs = (/0.02,0.04,0.08,0.32,0.28,0.52,0.68,0.70,0.72/)
+end if
+write(*,*) 'dzs:', mpas_noahmp%dzs
 
 
  if(mpas_noahmp%restart_flag) return
