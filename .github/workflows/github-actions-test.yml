@@ -1,6 +1,9 @@
 name: GitHub Actions Demo
+
 run-name: ${{ github.actor }} is testing out GitHub Actions
+
 on: [push]
+
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -19,10 +22,6 @@ jobs:
       - run: echo $SHELL
       - run: which gfortran
       - run: sudo apt-get install openmpi-bin
-      - run: sudo apt-get install libnetcdf-pnetcdf-19
-      - run: env
-      - run: ls /usr
-      - run: ls /usr/bin
-      - run: dpkg -L libnetcdf-pnetcdf-19
       - run: dpkg -L openmpi-bin
-      - run: ls /usr/lib/x86_64-linux-gnu
+      - run: which mpif90.openmpi
+      - run: which mpif90
