@@ -18,4 +18,4 @@ jobs:
       - run: echo "This job's status is ${{ job.status }}."
       - run: echo $SHELL
       - run: which gfortran
-      - run: sudo apt get libnetcdf-pnetcdf-19
+      - run: sudo apt-get libnetcdf-pnetcdf-19
