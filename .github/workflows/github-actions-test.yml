@@ -18,9 +18,11 @@ jobs:
       - run: echo "This job's status is ${{ job.status }}."
       - run: echo $SHELL
       - run: which gfortran
+      - run: sudo apt-get install openmpi-bin
       - run: sudo apt-get install libnetcdf-pnetcdf-19
       - run: env
       - run: ls /usr
       - run: ls /usr/bin
       - run: dpkg -L libnetcdf-pnetcdf-19
+      - run: dpkg -L openmpi-bin
       - run: ls /usr/lib/x86_64-linux-gnu
