@@ -17,3 +17,6 @@ jobs:
           ls ${{ github.workspace }}
       - run: echo "This job's status is ${{ job.status }}."
       - run: echo $SHELL
+      - run: which gfortran
+      - run: which mpirun
+      - run: mpirun 
