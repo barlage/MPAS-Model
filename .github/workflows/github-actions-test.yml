@@ -23,4 +23,4 @@ jobs:
       - run: ls /usr
       - run: ls /usr/bin
       - run: dpkg -L libnetcdf-pnetcdf-19
-      - run: ls /var/lib/dpkg/info
+      - run: ls /usr/lib/x86_64-linux-gnu
