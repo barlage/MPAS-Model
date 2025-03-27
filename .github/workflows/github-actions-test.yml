@@ -20,4 +20,5 @@ jobs:
       - run: which gfortran
       - run: sudo apt-get install libnetcdf-pnetcdf-19
       - run: env
-      - run: which mpirun
+      - run: ls /usr
+      - run: ls /usr/bin
