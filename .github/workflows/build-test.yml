@@ -7,7 +7,7 @@ jobs:
   build-run:
     runs-on: ubuntu-latest
     steps:
-      - run: sudo apt-get install libnetcdf-pnetcdf-19
+      - run: sudo apt-get install netcdf-bin
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Run the netcdf code
