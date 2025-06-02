@@ -26,6 +26,8 @@ contains
 
 ! local variable
     integer                          :: LoopInd    ! loop index
+    real(kind=kind_noahmp), dimension(4,20)   :: OrganicSoil                 ! soil carbon content [kg/m3]
+    real(kind=kind_noahmp), parameter         :: ThermConductOrganic = 0.25  ! soil carbon therm cond (Lawrence and Slater)
 
 ! --------------------------------------------------------------------
     associate(                                                                       &
@@ -35,6 +37,8 @@ contains
               ThicknessSnowSoilLayer => noahmp%config%domain%ThicknessSnowSoilLayer ,& ! in,  thickness of snow/soil layers [m]
               NumSnowLayerNeg        => noahmp%config%domain%NumSnowLayerNeg        ,& ! in,  actual number of snow layers (negative)
               FlagUrban              => noahmp%config%domain%FlagUrban              ,& ! in,  logical flag for urban grid
+              VegType                => noahmp%config%domain%VegType                ,& ! in,  vegetation type 
+              VegFrac                => noahmp%energy%state%VegFrac                 ,& ! in,  green vegetation fraction 
               SnowDepth              => noahmp%water%state%SnowDepth                ,& ! in,  snow depth [m]
               TemperatureSoilSnow    => noahmp%energy%state%TemperatureSoilSnow     ,& ! in,  snow and soil layer temperature [K]
               ThermConductSoilSnow   => noahmp%energy%state%ThermConductSoilSnow    ,& ! out, thermal conductivity [W/m/K] for all soil & snow
@@ -46,6 +50,16 @@ contains
               ThermConductSoil       => noahmp%energy%state%ThermConductSoil         & ! out, soil layer thermal conductivity [W/m/K]
              )
 ! ----------------------------------------------------------------------
+
+! soil carbon [kg/m3] by vegetation type estimated from global PNNL soil carbon dataset
+!   and VIIRS surface type
+
+    OrganicSoil(1,:) = (/90,65,90,65,90,40,50,50,40,50,90,60,60,60,0,20,0,90,90,60/)
+    OrganicSoil(2,:) = (/40,30,40,30,40,25,30,30,25,30,40,30,30,30,0,15,0,60,60,40/)
+    OrganicSoil(3,:) = (/20,15,20,15,20,15,20,15,15,15,25,20,20,20,0,10,0,40,40,30/)
+    OrganicSoil(4,:) = (/15,10,15,10,15,10,15,10,10,10,20,10,10,10,0,10,0,40,30,20/)
+
+    OrganicSoil = OrganicSoil / 130.0   ! convert to soil carbon relative to peat
 
     ! initialize
     HeatCapacSoilSnow    = 0.0
@@ -61,6 +75,7 @@ contains
     ! compute soil thermal properties
     call SoilThermalProperty(noahmp)
     do LoopInd = 1, NumSoilLayer
+       ThermConductSoil(LoopInd) = (1.0 - OrganicSoil(LoopInd,VegType)) * ThermConductSoil(LoopInd) + OrganicSoil(LoopInd,VegType) * ThermConductOrganic
        ThermConductSoilSnow(LoopInd) = ThermConductSoil(LoopInd)
        HeatCapacSoilSnow(LoopInd)    = HeatCapacVolSoil(LoopInd)
     enddo
