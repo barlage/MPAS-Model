@@ -2181,7 +2181,7 @@ else
          ! starting index of the array is 1, and dataset categories do not necessarily start
          ! at 1, we need to use category_min to ensure the correct category location is chosen.
          if (all(ncat(:,iCell) == 0)) then
-           soil_color(iCell) = 11  ! all missing, e.g. water, so choose a neutral value
+           soil_color(iCell) = 10  ! all missing, e.g. water, so choose a neutral value
          else
            soil_color(iCell) = maxloc(ncat(:,iCell), dim=1) - 1 + category_min
          end if
