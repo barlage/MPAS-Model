@@ -1292,6 +1292,8 @@
     call mpas_pool_get_config(mgr % pool, 'tile_y', tile_ny)
     call mpas_pool_get_config(mgr % pool, 'tile_z', tile_nz)
     call mpas_pool_get_config(mgr % pool, 'missing_value', missing_value)
+    call mpas_pool_get_config(mgr % pool, 'scale_factor', scalefactor_ptr)
+    scalefactor = scalefactor_ptr
 
     allocate(nhs(nCells))
     allocate(lai12m_int(tile_nz, nCells))
@@ -1396,6 +1398,7 @@
             lai12m(:,iCell) = fillval
         else
             lai12m(:,iCell) = real(real(lai12m_int(:,iCell), kind=R8KIND) / real(nhs(iCell), kind=R8KIND), kind=RKIND)
+            lai12m(:,iCell) = lai12m(:,iCell) * scalefactor
         end if
     end do
 
