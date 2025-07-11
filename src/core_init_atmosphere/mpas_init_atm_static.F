@@ -90,7 +90,9 @@
  !
  integer (kind=I8KIND), dimension(:), pointer :: ter_integer
  integer (kind=I8KIND), dimension(:,:), pointer :: soilcomp_int
+ integer (kind=I8KIND), dimension(:), pointer :: noahmp_field_integer
  real (kind=RKIND) :: soilcomp_msgval = 255.0_RKIND   ! Modified later based on index file for soilcomp
+ real (kind=RKIND) :: noahmp_missing_value
  integer, dimension(:), pointer :: lu_index
  integer, dimension(:), pointer :: soilcat_top
  integer, dimension(:), pointer :: nhs
@@ -1270,6 +1272,16 @@
                           supersample_fac=supersample_fac)
     call mpas_log_write('--- end interpolate soil_color')
 
+    !
+    ! Interpolate canopy_top
+    !
+    geog_sub_path = 'pnnl/canopy_top/'
+
+    call mpas_log_write('--- start interpolate canopy_top')
+    call interp_noahmp_continuous(mesh, tree, trim(geog_data_path)//trim(geog_sub_path), &
+                 field_name = "canopy_top", field_fill = 0.0, supersample_fac=supersample_fac_30s)
+    call mpas_log_write('--- end interpolate canopy_top')
+
  end if
 
 !
@@ -1710,6 +1722,32 @@ else
 
  end subroutine soilcomp_interp_accumulation
 
+ !***********************************************************************
+ !
+ !  routine noahmp2d_interp_accumulation
+ !
+ !> \brief  Accumulate values for a noahmp 2D dataset
+ !> \author Michael Barlage
+ !> \date   11 July 2025
+ !> \details
+ !> This routine accumulates values for the init_atm_map_static_data
+ !> routine.
+ !
+ !-----------------------------------------------------------------------
+ subroutine noahmp2d_interp_accumulation(iCell, pixel)
+
+     integer, intent(in) ::iCell
+     integer (kind=I8KIND), dimension(:), intent(in) :: pixel
+
+     if (landmask(iCell) == 0) return
+
+     if (pixel(1) /= noahmp_missing_value) then
+         noahmp_field_integer(iCell) = noahmp_field_integer(iCell) + int(pixel(1), kind=I8KIND)
+         nhs(iCell) = nhs(iCell) + 1
+     end if
+
+ end subroutine noahmp2d_interp_accumulation
+
 
  !***********************************************************************
  !
@@ -2128,7 +2166,7 @@ else
 
  !***********************************************************************
  !
- !  routine interp_soil_color
+ !  routine interp_noahmp_continuous
  !
  !> \brief   Interpolate soil color
  !> \author  Michael Barlage
@@ -2188,6 +2226,8 @@ else
      end do
      deallocate(ncat)
 
+     where(landmask == 0) soil_color = 10   ! set all water to the neutral value
+
      ierr = mgr % finalize()
      if (ierr /= 0) then
          call mpas_log_write("Error occured finalizing interpolation for "//trim(geog_data_path), messageType=MPAS_LOG_CRIT)
@@ -2195,6 +2235,91 @@ else
      end if
 
  end subroutine interp_soil_color
+
+ !***********************************************************************
+ !
+ !  routine interp_noahmp_continuous
+ !
+ !> \brief   Interpolate a generic noahmp 2d continuous field
+ !> \author  Michael Barlage
+ !> \date    11 July 2025
+ !> \details
+ !> Interpolate a generic noahmp 2d field (field_name) by using the init_atm_map_static_data routine and
+ !> accumulating the pixel values into each cell using noahmp2d_interp_accumulation.
+ !>
+ !> Following the method outlined for terrain
+ !
+ !-----------------------------------------------------------------------
+ subroutine interp_noahmp_continuous(mesh, kdtree, geog_data_path, field_name, field_fill, supersample_fac)
+
+     implicit none  
+
+     ! Input variables
+     type (mpas_pool_type),        intent(inout) :: mesh
+     type (mpas_kd_type), pointer, intent(in)    :: kdtree
+     character (len=*),            intent(in)    :: geog_data_path
+     character (len=*),            intent(in)    :: field_name
+     real (kind=RKIND),            intent(in)    :: field_fill
+     integer, optional ,           intent(in)    :: supersample_fac
+
+     ! Local variables
+     type (mpas_geotile_mgr_type)             :: mgr
+     integer                        , pointer :: nCells
+     real (kind=RKIND), dimension(:), pointer :: field_pointer
+     real (kind=RKIND)              , pointer :: missing_value
+     real (kind=RKIND)              , pointer :: scale_factor
+
+     integer :: iCell
+     integer :: ierr
+
+     ierr = mgr % init(trim(geog_data_path))
+     if (ierr /= 0) then
+         call mpas_log_write("Error occured initalizing interpolation for "//trim(geog_data_path), messageType=MPAS_LOG_CRIT)
+         return ! Program execution should not reach this statement since the preceding message is a critical error
+     end if
+
+     call mpas_pool_get_dimension(mesh, 'nCells', nCells)
+     call mpas_pool_get_config(mgr % pool, 'missing_value', missing_value)
+     call mpas_pool_get_config(mgr % pool, 'scale_factor', scale_factor)
+     call mpas_pool_get_array(mesh, trim(field_name), field_pointer)
+
+     noahmp_missing_value = missing_value   ! set global missing value from index file value
+     
+     allocate(noahmp_field_integer(nCells))
+     allocate(nhs(nCells))
+
+     field_pointer(:) = field_fill          ! initialize with the fill value
+     noahmp_field_integer(:) = 0            ! accumulation variable
+     nhs(:) = 0                             ! number of valid values in total
+
+     call init_atm_map_static_data(mesh, mgr, kdtree, continuous_interp_criteria, &
+                                   noahmp2d_interp_accumulation, &
+                                   supersample_fac=supersample_fac)
+
+     do iCell = 1, nCells
+       if (nhs(iCell) > 0) then
+           field_pointer(iCell) = real(real(noahmp_field_integer(iCell), kind=R8KIND) &
+                                    / real(nhs(iCell), kind=R8KIND), kind=RKIND)
+           field_pointer(iCell) = field_pointer(iCell) * scale_factor  ! apply scale_factor to valid averages
+       end if
+     end do
+
+     where(landmask == 0) field_pointer = field_fill   ! set all water to field_fill
+
+     deallocate(noahmp_int)
+     deallocate(nhs)
+
+     ierr = mgr % finalize()
+     if (ierr /= 0) then
+        call mpas_log_write('Error occurred finalizing interpolation for '//trim(geog_data_path), &
+                            messageType=MPAS_LOG_CRIT)
+
+        return ! Program execution should not reach this statement
+               ! since the preceding message is a critical error
+     end if
+
+ end subroutine interp_noahmp_continuous
+
  !***********************************************************************
  !
  !  routine derive_landmask

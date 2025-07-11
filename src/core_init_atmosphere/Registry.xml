@@ -498,6 +498,7 @@
                         <var name="soilcl3" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="soilcl4" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="soil_color" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="canopy_top" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="var2d" packages="vertical_stage_in;met_stage_in"/>
                         <var name="con" packages="vertical_stage_in;met_stage_in"/>
                         <var name="oa1" packages="vertical_stage_in;met_stage_in"/>
@@ -607,6 +608,7 @@
                         <var name="soilcl3"/>
                         <var name="soilcl4"/>
                         <var name="soil_color"/>
+                        <var name="canopy_top"/>
                         <var name="var2d" packages="gwd_stage_out;vertical_stage_out;met_stage_out"/>
                         <var name="con" packages="gwd_stage_out;vertical_stage_out;met_stage_out"/>
                         <var name="oa1" packages="gwd_stage_out;vertical_stage_out;met_stage_out"/>
@@ -954,9 +956,14 @@
                      description="soil texture class level 4 needed as input for the NOAH-MP land surface model"
                      packages="noahmp"/>
 
-                <!-- soil color index needed for the Noah-MP land surface scheme -->
+                <!-- soil color index for the Noah-MP land surface scheme -->
                 <var name="soil_color" type="integer" dimensions="nCells" units="unitless"
                      description="soil color index"
+                     packages="noahmp"/>
+
+                <!-- canopy top height for the Noah-MP land surface scheme -->
+                <var name="canopy_top" type="real" dimensions="nCells" units="meters"
+                     description="canopy top height"
                      packages="noahmp"/>
 
                 <!-- GWDO fields -->
