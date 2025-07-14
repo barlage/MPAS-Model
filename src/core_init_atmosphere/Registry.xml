@@ -499,6 +499,8 @@
                         <var name="soilcl4" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="soil_color" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="canopy_top" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="canopy_bottom" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="vegetation_cover" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="var2d" packages="vertical_stage_in;met_stage_in"/>
                         <var name="con" packages="vertical_stage_in;met_stage_in"/>
                         <var name="oa1" packages="vertical_stage_in;met_stage_in"/>
@@ -609,6 +611,8 @@
                         <var name="soilcl4"/>
                         <var name="soil_color"/>
                         <var name="canopy_top"/>
+                        <var name="canopy_bottom"/>
+                        <var name="vegetation_cover"/>
                         <var name="var2d" packages="gwd_stage_out;vertical_stage_out;met_stage_out"/>
                         <var name="con" packages="gwd_stage_out;vertical_stage_out;met_stage_out"/>
                         <var name="oa1" packages="gwd_stage_out;vertical_stage_out;met_stage_out"/>
@@ -964,6 +968,16 @@
                 <!-- canopy top height for the Noah-MP land surface scheme -->
                 <var name="canopy_top" type="real" dimensions="nCells" units="meters"
                      description="canopy top height"
+                     packages="noahmp"/>
+
+                <!-- canopy bottom height for the Noah-MP land surface scheme -->
+                <var name="canopy_bottom" type="real" dimensions="nCells" units="meters"
+                     description="canopy bottom height"
+                     packages="noahmp"/>
+
+                <!-- vegetation cover for the Noah-MP land surface scheme -->
+                <var name="vegetation_cover" type="real" dimensions="nCells" units="fraction"
+                     description="vegetation cover fraction on grid cell"
                      packages="noahmp"/>
 
                 <!-- GWDO fields -->

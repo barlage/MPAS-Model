@@ -1288,6 +1288,32 @@
                                supersample_fac=supersample_fac_30s                    )
     call mpas_log_write('--- end interpolate canopy_top')
 
+    !
+    ! Interpolate canopy_bottom
+    !
+    geog_sub_path = 'pnnl/canopy_bottom/'
+
+    call mpas_log_write('--- start interpolate canopy_bottom')
+    call interp_noahmp_generic(mesh, tree, trim(geog_data_path)//trim(geog_sub_path), &
+                               field_name = "canopy_bottom",                          &
+                               field_fill = 0.0,                                      &
+                               field_type = "continuous",                             &
+                               supersample_fac=supersample_fac_30s                    )
+    call mpas_log_write('--- end interpolate canopy_bottom')
+
+    !
+    ! Interpolate vegetation_cover
+    !
+    geog_sub_path = 'vegetation_cover/'
+
+    call mpas_log_write('--- start interpolate vegetation_cover')
+    call interp_noahmp_generic(mesh, tree, trim(geog_data_path)//trim(geog_sub_path), &
+                               field_name = "vegetation_cover",                       &
+                               field_fill = 0.0,                                      &
+                               field_type = "continuous",                             &
+                               supersample_fac=supersample_fac_30s                    )
+    call mpas_log_write('--- end interpolate vegetation_cover')
+
  end if
 
 !
