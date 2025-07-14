@@ -1762,8 +1762,7 @@ else
  !> \author Michael Barlage
  !> \date   11 July 2025
  !> \details
- !> This routine accumulates values for the init_atm_map_static_data
- !> routine.
+ !> This routine accumulates values for the init_atm_map_static_data routine.
  !
  !-----------------------------------------------------------------------
  subroutine noahmp2d_interp_accumulation(iCell, pixel)
@@ -1780,6 +1779,30 @@ else
 
  end subroutine noahmp2d_interp_accumulation
 
+ !***********************************************************************
+ !
+ !  routine noahmp3d_interp_accumulation
+ !
+ !> \brief  Accumulate values for a noahmp 3D dataset
+ !> \author Michael Barlage (generalized from Michael Duda's soilcomp_interp)
+ !> \date   14 July 2025
+ !> \details
+ !> This routine accumulates values for the init_atm_map_static_data routine.
+ !
+ !-----------------------------------------------------------------------
+ subroutine noahmp3d_interp_accumulation(iCell, pixel)
+
+     integer, intent(in) ::iCell
+     integer (kind=I8KIND), dimension(:), intent(in) :: pixel
+
+     if (landmask(iCell) == 0) return
+
+     if (pixel(1) /= noahmp_missing_value) then
+         noahmp_accumulation(iCell) = noahmp_accumulation(iCell) + int(pixel(:), kind=I8KIND)
+         nhs(iCell) = nhs(iCell) + 1
+     end if
+
+ end subroutine noahmp3d_interp_accumulation
 
  !***********************************************************************
  !
