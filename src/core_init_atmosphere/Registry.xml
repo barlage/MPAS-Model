@@ -183,7 +183,7 @@
                 <nml_option name="config_landuse_data"          type="character"     default_value="MODIFIED_IGBP_MODIS_NOAH"
                      units="-"
                      description="The land use classification to use (case 7 only)"
-                     possible_values="`USGS', `MODIFIED_IGBP_MODIS_NOAH', or `MODIFIED_IGBP_MODIS_NOAH_15s'"/>
+                     possible_values="`USGS', `MODIFIED_IGBP_MODIS_NOAH', `MODIFIED_IGBP_MODIS_NOAH_15s', or `MODIFIED_IGBP_VIIRS_UMD'"/>
 
                 <nml_option name="config_soilcat_data"          type="character"     default_value="STATSGO"
                      units="-"

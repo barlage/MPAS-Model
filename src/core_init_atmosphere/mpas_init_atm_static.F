@@ -90,7 +90,8 @@
  !
  integer (kind=I8KIND), dimension(:), pointer :: ter_integer
  integer (kind=I8KIND), dimension(:,:), pointer :: soilcomp_int
- integer (kind=I8KIND), dimension(:), pointer :: noahmp_accumulation
+ integer (kind=I8KIND), dimension(:)  , pointer :: noahmp_2d_accumulation
+ integer (kind=I8KIND), dimension(:,:), pointer :: noahmp_3d_accumulation
  real (kind=RKIND) :: soilcomp_msgval = 255.0_RKIND   ! Modified later based on index file for soilcomp
  real (kind=RKIND) :: noahmp_missing_value
  integer, dimension(:), pointer :: lu_index
@@ -370,7 +371,7 @@
  surface_input_select0: select case(trim(config_landuse_data))
     case('USGS')
        write(mminlu,'(a)') 'USGS'
-    case('MODIFIED_IGBP_MODIS_NOAH', 'MODIFIED_IGBP_MODIS_NOAH_15s')
+    case('MODIFIED_IGBP_MODIS_NOAH', 'MODIFIED_IGBP_MODIS_NOAH_15s', 'MODIFIED_IGBP_VIIRS_UMD')
        write(mminlu,'(a)') 'MODIFIED_IGBP_MODIS_NOAH'
     case default
          call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
@@ -378,6 +379,7 @@
                                        //''' selected for config_landuse_data',                   messageType=MPAS_LOG_ERR)
          call mpas_log_write('   Possible options are: ''USGS'', ''MODIFIED_IGBP_MODIS_NOAH''',   messageType=MPAS_LOG_ERR)
          call mpas_log_write('                         ''MODIFIED_IGBP_MODIS_NOAH_15s''',         messageType=MPAS_LOG_ERR)
+         call mpas_log_write('                         ''MODIFIED_IGBP_VIIRS_UMD''',              messageType=MPAS_LOG_ERR)
          call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
          call mpas_log_write('Please correct the namelist.', messageType=MPAS_LOG_CRIT)
  end select surface_input_select0
@@ -419,12 +421,16 @@
     case('MODIFIED_IGBP_MODIS_NOAH_15s')
        call mpas_log_write('Using 20-class MODIS 15-arc-second land cover dataset')
        geog_sub_path = 'modis_landuse_20class_15s/'
+    case('MODIFIED_IGBP_VIIRS_UMD')
+       call mpas_log_write('Using 20-class VIIRS 30-arc-second land cover dataset developed by U.Maryland')
+       geog_sub_path = 'viirs_landuse/'
     case default
        call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
        call mpas_log_write('Invalid land use dataset '''//trim(config_landuse_data) &
                                      //''' selected for config_landuse_data',                   messageType=MPAS_LOG_ERR)
        call mpas_log_write('   Possible options are: ''USGS'', ''MODIFIED_IGBP_MODIS_NOAH''',   messageType=MPAS_LOG_ERR)
        call mpas_log_write('                         ''MODIFIED_IGBP_MODIS_NOAH_15s''',         messageType=MPAS_LOG_ERR)
+       call mpas_log_write('                         ''MODIFIED_IGBP_VIIRS_UMD''',              messageType=MPAS_LOG_ERR)
        call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
        call mpas_log_write('Please correct the namelist.', messageType=MPAS_LOG_CRIT)
  end select surface_input_select1
@@ -1756,7 +1762,7 @@ else
 
  !***********************************************************************
  !
- !  routine noahmp2d_interp_accumulation
+ !  routine noahmp_2d_interp_accumulation
  !
  !> \brief  Accumulate values for a noahmp 2D dataset
  !> \author Michael Barlage
@@ -1765,7 +1771,7 @@ else
  !> This routine accumulates values for the init_atm_map_static_data routine.
  !
  !-----------------------------------------------------------------------
- subroutine noahmp2d_interp_accumulation(iCell, pixel)
+ subroutine noahmp_2d_interp_accumulation(iCell, pixel)
 
      integer, intent(in) ::iCell
      integer (kind=I8KIND), dimension(:), intent(in) :: pixel
@@ -1773,15 +1779,15 @@ else
      if (landmask(iCell) == 0) return
 
      if (pixel(1) /= noahmp_missing_value) then
-         noahmp_accumulation(iCell) = noahmp_accumulation(iCell) + int(pixel(1), kind=I8KIND)
+         noahmp_2d_accumulation(iCell) = noahmp_2d_accumulation(iCell) + int(pixel(1), kind=I8KIND)
          nhs(iCell) = nhs(iCell) + 1
      end if
 
- end subroutine noahmp2d_interp_accumulation
+ end subroutine noahmp_2d_interp_accumulation
 
  !***********************************************************************
  !
- !  routine noahmp3d_interp_accumulation
+ !  routine noahmp_3d_interp_accumulation
  !
  !> \brief  Accumulate values for a noahmp 3D dataset
  !> \author Michael Barlage (generalized from Michael Duda's soilcomp_interp)
@@ -1790,7 +1796,7 @@ else
  !> This routine accumulates values for the init_atm_map_static_data routine.
  !
  !-----------------------------------------------------------------------
- subroutine noahmp3d_interp_accumulation(iCell, pixel)
+ subroutine noahmp_3d_interp_accumulation(iCell, pixel)
 
      integer, intent(in) ::iCell
      integer (kind=I8KIND), dimension(:), intent(in) :: pixel
@@ -1798,11 +1804,11 @@ else
      if (landmask(iCell) == 0) return
 
      if (pixel(1) /= noahmp_missing_value) then
-         noahmp_accumulation(iCell) = noahmp_accumulation(iCell) + int(pixel(:), kind=I8KIND)
+         noahmp_3d_accumulation(:,iCell) = noahmp_3d_accumulation(:,iCell) + int(pixel(:), kind=I8KIND)
          nhs(iCell) = nhs(iCell) + 1
      end if
 
- end subroutine noahmp3d_interp_accumulation
+ end subroutine noahmp_3d_interp_accumulation
 
  !***********************************************************************
  !
@@ -2228,7 +2234,7 @@ else
  !> \date    25 February 2025
  !> \details
  !> Interpolate a generic noahmp 2d field (field_name) by using the init_atm_map_static_data routine and
- !> accumulating the pixel values into each cell using categorical_interp_accumulation or noahmp2d_interp_accumulation.
+ !> accumulating the pixel values into each cell using categorical_interp_accumulation or noahmp_2d_interp_accumulation.
  !>
  !
  !-----------------------------------------------------------------------
@@ -2297,19 +2303,19 @@ else
 
          call mpas_pool_get_array(mesh, trim(field_name), field_pointer_real)
 
-         allocate(noahmp_accumulation(nCells))
+         allocate(noahmp_2d_accumulation(nCells))
          allocate(nhs(nCells))
 
          field_pointer_real(:) = field_fill     ! initialize with the fill value
-         noahmp_accumulation(:) = 0             ! accumulation variable
+         noahmp_2d_accumulation(:) = 0          ! accumulation variable
          nhs(:) = 0                             ! number of valid values in total
 
          call init_atm_map_static_data(mesh, mgr, kdtree, continuous_interp_criteria, &
-                                   noahmp2d_interp_accumulation, supersample_fac=supersample_fac)
+                                   noahmp_2d_interp_accumulation, supersample_fac=supersample_fac)
 
          do iCell = 1, nCells
            if (nhs(iCell) > 0) then
-             field_pointer_real(iCell) = real(real(noahmp_accumulation(iCell), kind=R8KIND) &
+             field_pointer_real(iCell) = real(real(noahmp_2d_accumulation(iCell), kind=R8KIND) &
                                         / real(nhs(iCell), kind=R8KIND), kind=RKIND)
              field_pointer_real(iCell) = field_pointer_real(iCell) * scale_factor  ! apply scale_factor to valid averages
            end if
@@ -2317,7 +2323,7 @@ else
 
          where(landmask == 0) field_pointer_real = field_fill   ! set all water to field_fill
 
-         deallocate(noahmp_accumulation)
+         deallocate(noahmp_2d_accumulation)
          deallocate(nhs)
 
      end select field_type_select
